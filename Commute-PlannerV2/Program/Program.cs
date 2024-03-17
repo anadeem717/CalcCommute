@@ -10,23 +10,25 @@ class Program
     {
         string apiKeyFile = "Maps-API.txt";
 
-        string apiKey = await ReadApiKeyFromFile(apiKeyFile);
+        string? apiKey = await ReadApiKeyFromFile(apiKeyFile);
         if (string.IsNullOrEmpty(apiKey))
         {
             Console.WriteLine("API key not found");
             return;
         }
 
-        string origin;
-        string destination;
+        string? origin;
+        string? destination; 
 
         HttpClient client = new HttpClient();
         
+       
         Console.Write("Enter origin as {address} or {city, state}: ");
         origin = Console.ReadLine();
-
+    
         Console.Write("Enter destination address as {address} or {city, state}: ");
         destination = Console.ReadLine();
+        
 
         string apiUrl = $"https://maps.googleapis.com/maps/api/directions/json?origin={origin}&destination={destination}&key={apiKey}";
 
@@ -56,7 +58,7 @@ class Program
         Console.WriteLine($"Total Distance: {totalDistanceMiles:F2} miles");
 }
 
-    static async Task<string> ReadApiKeyFromFile(string filePath)
+    static async Task<string?> ReadApiKeyFromFile(string filePath)
     {
         try
         {
