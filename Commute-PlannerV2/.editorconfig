@@ -5,3 +5,4 @@ dotnet_diagnostic.CS8600.severity = none
 
 # CS8613: Nullability of reference types in return type doesn't match implicitly implemented member.
 dotnet_diagnostic.CS8613.severity = none
+dotnet_diagnostic.CS8602.severity = none
