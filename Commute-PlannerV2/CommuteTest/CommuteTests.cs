@@ -9,47 +9,31 @@ namespace CommuteTests {
 
     public class ApiKeyReaderTests
     {
-        [Fact]
-        public async Task ReadApiKeyFromFile_ValidFilePath()
+        [Theory]
+        [InlineData("test_api_key.txt", "test_api_key", true)] // Valid file path and API key
+        [InlineData("non-existent-file.txt", null, false)] // Invalid file path
+        public async Task ReadApiKeyFromFile(string apiKeyFile, string expectedApiKey, bool fileExists)
         {
-        
-            // mock API key and file
-            string apiKey = "test_api_key";
-            string apiKeyFile = "test_api_key.txt";
+            if (fileExists)
+            {
+                await File.WriteAllTextAsync(apiKeyFile, expectedApiKey ?? string.Empty);
+            }
             
-            await File.WriteAllTextAsync(apiKeyFile, apiKey);
             var apiKeyReader = new ApiKeyReader();
 
             string result = await apiKeyReader.ReadApiKeyFromFile(apiKeyFile);
 
-            Assert.Equal(apiKey, result);
+            Assert.Equal(expectedApiKey, result);
         }
-
-        [Fact]
-        public async Task ReadApiKeyFromFile_InvalidFilePath()
-        {
-            string apiKeyFile = "non-existent-file.txt";
-            var apiKeyReader = new ApiKeyReader();
-
-            string result = await apiKeyReader.ReadApiKeyFromFile(apiKeyFile);
-
-            // result should be null since the file does not exist
-            Assert.Null(result);
-        }
-
     }
 
     public class LocationTests
     {
-        [Fact]
-        public async Task FindDistance_ReturnsCorrectValues()
+        [Theory]
+        [InlineData("123 Address1 Rd", "456 Address2 Rd", 60, 100)] 
+        public async Task FindDistance_ReturnsCorrectValues(string addr1, string addr2, double expectedDuration, double expectedDistance)
         {
-        
             var mockLocationFetcher = new Mock<IFetchGmapLocation>();
-            string addr1 = "123 Address1 Rd";
-            string addr2 = "456 Address2 Rd";
-            double expectedDuration = 60; // Expected duration in minutes
-            double expectedDistance = 100; // Expected distance in miles
 
             // mock JSON object
             JObject mockResponse = new JObject(
@@ -57,8 +41,8 @@ namespace CommuteTests {
                     new JObject(
                         new JProperty("legs", new JArray(
                             new JObject(
-                                new JProperty("duration", new JObject(new JProperty("value", 3600))), // Duration in seconds
-                                new JProperty("distance", new JObject(new JProperty("value", 160934))) // Distance in meters
+                                new JProperty("duration", new JObject(new JProperty("value", expectedDuration * 60))), // Convert minutes to seconds
+                                new JProperty("distance", new JObject(new JProperty("value", expectedDistance * 1609.34))) // Convert miles to meters
                             )
                         ))
                     )
@@ -76,5 +60,3 @@ namespace CommuteTests {
         }
     }
 }
-
-
